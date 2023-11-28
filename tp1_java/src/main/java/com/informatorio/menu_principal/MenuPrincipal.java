@@ -75,6 +75,21 @@ public class MenuPrincipal {
             
             String nombre = input.nextLine();
 
+            if (banco.get_clientes().size() != 0){
+                for (Cliente cliente : banco.get_clientes()) {
+                    if (cliente.get_nombre().equals(nombre)){
+                        System.out.println("--------------------------------------");
+                        System.out.println("ese nombre ya esta en uso ingrese otro");
+                        System.out.println("--------------------------------------");
+                        return;
+                    }
+            }
+            
+
+                
+                
+            }
+
             System.out.println("Ingresa tu direccion");
 
             String direccion = input.nextLine();
