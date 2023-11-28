@@ -10,7 +10,6 @@ import java.util.List;
 
 public class ArchivoServicioImpl implements ArchivoServicio{
     
-    private Banco banco = new Banco();
 
     private final String UBICACION_ARCHIVO ="/TPI1_JAVA/tp1_java/src/main/java/com/informatorio/recursos/";
 
