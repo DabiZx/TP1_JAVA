@@ -35,10 +35,10 @@ public class Banco {
 
         for (Cliente cliente : clientes) {
 
-            if (cliente.get_nombre().equals(nombre_cliente) && contrasenia_cliente.equals(contrasenia_cliente)) {
+            if (cliente.get_nombre().equals(nombre_cliente) && cliente.get_contrasenia().equals(contrasenia_cliente)) {
                 this.cliente_actual = cliente;
                 return;
-             }
+            }
         }
 
         

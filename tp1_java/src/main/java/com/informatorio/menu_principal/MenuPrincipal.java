@@ -4,8 +4,9 @@ import java.util.Scanner;
 
 import com.informatorio.domain.*;
 
-import com.informatorio.servicios.*;
 import com.informatorio.servicios.archivos.ArchivoServicioImpl;
+import com.informatorio.servicios.cliente.ClienteServicioImpl;
+import com.informatorio.servicios.cuenta.CuentaServicioImpl;
 
 
 public class MenuPrincipal {
@@ -15,6 +16,11 @@ public class MenuPrincipal {
     private Banco banco = new Banco();
 
     private ArchivoServicioImpl archivo_servicio = new ArchivoServicioImpl();
+
+    private CuentaServicioImpl cuenta_sercvicio = new CuentaServicioImpl();
+
+    private ClienteServicioImpl cliente_servicio  = new ClienteServicioImpl();
+
 
     public MenuPrincipal(){}
     
@@ -140,120 +146,76 @@ public class MenuPrincipal {
 
 
     public void opciones_usuario_logeado(){
-        if (banco.get_cliente_actual() != null){
-            Cliente cliente_actual = banco.get_cliente_actual();
+        if (banco.get_cliente_actual() == null){
+            
+            System.out.println("------------------------------------");
+            System.out.println("no se pudo inicar sesion");
+            System.out.println("------------------------------------");
+            return;
+    }
 
-            System.out.println("-----------------------------------------");
-            System.out.println("inicio sesion exitoso bienvenido " + cliente_actual.get_nombre());
-            System.out.println("-----------------------------------------");
+        cliente_servicio.setBanco(banco);
+        cliente_servicio.setCliente_actual();
+
+        System.out.println("-----------------------------------------");
+        System.out.println("inicio sesion exitoso bienvenido " + banco.get_cliente_actual().get_nombre());
+        System.out.println("-----------------------------------------");
             
 
-            while(true){
-                System.out.println();
-                System.out.println("-----------------------");
-                System.out.println("1_ agregar cuenta");
-                System.out.println("2_ eliminar cuenta");
-                System.out.println("3_ consultar saldo");
-                System.out.println("4_ ver cuentas");
-                System.out.println("5_ acceder cuenta");
-                System.out.println("6_ cerrar sesion");
+        while(true){
+            System.out.println();
+            System.out.println("-----------------------");
+            System.out.println("1_ agregar cuenta");
+            System.out.println("2_ eliminar cuenta");
+            System.out.println("3_ consultar saldo");
+            System.out.println("4_ ver cuentas");
+            System.out.println("5_ acceder cuenta");
+            System.out.println("6_ cerrar sesion");
 
-                Integer opcion = input.nextInt();
-                input.nextLine();
+            Integer opcion = input.nextInt();
+            input.nextLine();
 
-                switch (opcion) {
-                    case 1:
-                        System.out.println("-------------------------");
-                        System.out.println("selecciona el tipo de cuenta");
-                        System.out.println("-------------------------");
-                        
-                        System.out.println();
-                        System.out.println("1_ Cuenta Corriente");
-                        System.out.println("2_ Cuenta Ahorro");
+            switch (opcion) {
+                case 1:
+                    cliente_servicio.agregar_cuenta();
 
-                        Integer tipo_cuenta = input.nextInt();
-                        input.nextLine();
-                        
-                        cliente_actual.agregar_cuenta(tipo_cuenta);
-
-                        break;
+                    break;
                     
-                    case 2:
-                        System.out.println("====================-");
-                        System.out.println("   eliminar cuenta   ");
-                        System.out.println("=====================");
-
-                        cliente_actual.ver_cuentas();
-
-                        System.out.println("ingrese el numero de cuenta que desea eliminar");
-
-                        Integer num_cuenta = input.nextInt();
-                        input.nextLine();
-
-                        cliente_actual.eliminar_cuenta(num_cuenta);
-
-                        break;
+                case 2:
+                    cliente_servicio.eliminar_cuenta();
+                    break;
                     
-                    case 3:
-                        cliente_actual.ver_cuentas();
-                        System.out.println("======================================================");
-                        System.out.println("ingrese el numero de la cuenta que quiere ver el saldo");
-                        System.out.println("======================================================");
+                case 3:
+                    cliente_servicio.consultar_saldo();  
+                    break;
 
-                        num_cuenta = input.nextInt();
-                        input.nextLine();
-
-                        cliente_actual.consultar_saldo(num_cuenta);    
-                        break;
-
-                    case 4:
-                        cliente_actual.ver_cuentas();
+                case 4:
+                    cliente_servicio.ver_cuentas();
                       
-                        break;
+                    break;
                     
-                    case 5:
-                        cliente_actual.ver_cuentas();
-
-                        System.out.println("ingrese el numero de la cuenta que quiere acceder");
-                        num_cuenta = input.nextInt();
-                        input.nextLine();
-
-                        opciones_cuenta(num_cuenta);
-
-                        break;
+                case 5:
+                    opciones_cuenta(cliente_servicio.acceder_cuenta());
+                    break;
                         
-                    case 6:
-                        banco.logout();
-                        return;
-                    default:
-                        break;
+                case 6:
+                    banco.logout();
+                    return;
+                default:
+                    break;
                 }
             }
     } 
-    else {
-        System.out.println("------------------------------------");
-        System.out.println("no se pudo inicar sesion");
-        System.out.println("------------------------------------");
-        return;
-     }
-    }
-
 
 
 
     public void opciones_cuenta(Integer num_cuenta){
-        Cuenta cuenta = banco.get_cliente_actual().get_cuentas().get(num_cuenta);
+        cuenta_sercvicio.setBanco(banco);
+        
+        cuenta_sercvicio.setCuenta_actual(num_cuenta);
+
         
 
-        if (cuenta.get_tipo() == "CuentaCorriente"){
-            cuenta = (CuentaCorriente) banco.get_cliente_actual().get_cuentas().get(num_cuenta);
-        }
-        else if (cuenta.get_tipo() == "CuentaAhorro"){
-            cuenta = (CuentaAhorro) banco.get_cliente_actual().get_cuentas().get(num_cuenta);
-        }
-        
-        
-        
         while(true){
         System.out.println("======================================");
         System.out.println("has accedido a la cuenta: " + num_cuenta);
@@ -264,87 +226,37 @@ public class MenuPrincipal {
         System.out.println("2_ depositar saldo");
         System.out.println("3_ retirar saldo");
         System.out.println("4_ salir");
-        if (cuenta.get_tipo() == "CuentaAhorro"){
+
+
+        if (cuenta_sercvicio.getCuenta_actual().get_tipo() == "CuentaAhorro"){
             System.out.println("5_ agregar intereses");
         }
         
+
 
         Integer opcion = input.nextInt();
         input.nextLine();
 
         switch (opcion) {
             case 1:
-                cuenta.consultar_saldo();
-                
+                cuenta_sercvicio.consultar_saldo();
                 break;
-
+        
             case 2:
-                System.out.println("-------------------------");
-                System.out.println("  depositar saldo  ");
-                System.out.println("-------------------------");
-            
-                
-
-                System.out.println();
-
-                System.out.println("ingrese una cantidad: ");
-                
-                Double cantidad = input.nextDouble();
-                input.nextLine();
-
-                cuenta.depositar_saldo(cantidad);
+                cuenta_sercvicio.depositar_saldo();
                 break;
-
             case 3:
-                System.out.println("-------------------------");
-                System.out.println(" retirar saldo  ");
-                System.out.println("-------------------------");
-
-
-                if (cuenta.get_tipo() == "CuentaCorriente"){
-                    System.out.println("tu cuenta es una cuenta Corriente estas cuentas tienen un limite de que tanto dinero podes retirar,");
-                    System.out.println("si la cantidad excede su saldo el banco le ofrece 10.000$ para que pueda completar su retiro");
-                    System.out.println("pero si excede esa cantidad no podra retirar su saldo");
-                }
-
-                System.out.println();
-
-                System.out.println("ingrese una cantidad: ");
-
-                cantidad = input.nextDouble();
-                input.nextLine();
-
-                cuenta.retirar_saldo(cantidad);
+                cuenta_sercvicio.retirar_saldo();
                 break;
-
-            case 5:
-
-                System.out.println("-----------------------------------------------------------------------------------");
-                System.out.println(" agregar intereses, por abonar cada mes te agregaremos un 10% de interes a tu saldo");
-                System.out.println("-----------------------------------------------------------------------------------");
-                System.out.println();
-
-                System.out.println("ingrese una cantidad: ");
-                cantidad = input.nextDouble();
-                input.nextLine();
-
-                System.out.println("ingrese por cuantos meses va a dejar en el banco esa cantidad: ");
-                
-                Integer meses = input.nextInt();
-                input.nextLine();
-
-                cuenta.agregar_intereses(cantidad, meses);
-                
-                break;
-
+            
             case 4:
                 return;
+            case 5:
+                cuenta_sercvicio.agregar_intereses();
                 
             default:
                 break;
         }
-
+    }   
     }
-   
-}
 }
